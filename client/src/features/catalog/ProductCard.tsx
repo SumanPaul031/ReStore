@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { Component } from "react";
 import { Product } from "../../app/models/product";
+import { Link } from "react-router-dom";
 
 interface Props {
 	product: Product;
@@ -53,7 +54,7 @@ class ProductCard extends Component<Props, State> {
 				</CardContent>
 				<CardActions>
 					<Button size="small">Add To Cart</Button>
-					<Button size="small">View</Button>
+					<Button component={Link} to={`/catalog/${this.props.product.id}`} size="small">View</Button>
 				</CardActions>
 			</Card>
 		);
