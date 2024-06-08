@@ -1,11 +1,14 @@
 import { Component } from "react";
 import { Product } from "../../app/models/product";
 import ProductList from "./ProductList";
+import agent from "../../app/api/agent";
+import LoadingComponent from "../../app/layout/LoadingComponent";
 
 interface Props {}
 
 interface State {
 	products: Product[];
+	loading: boolean;
 }
 
 class Catalog extends Component<Props, State> {
@@ -13,6 +16,7 @@ class Catalog extends Component<Props, State> {
 		super(props);
 		this.state = {
 			products: [],
+			loading: true,
 		};
 
 		// Bind the addProduct method to the component instance
@@ -26,10 +30,10 @@ class Catalog extends Component<Props, State> {
 
 	fetchData = () => {
 		// Fetch data from an API or perform some side effect
-		fetch("http://localhost:5000/api/products")
-			.then((response) => response.json())
-			.then((data) => this.setState({ products: data }))
-			.catch((error) => console.error("Error fetching data:", error));
+		agent.Catalog.list()
+			.then((products) => this.setState({ products }))
+			.catch((error) => console.error("Error fetching data:", error))
+			.finally(() => this.setState(() => ({ loading: false })));
 	};
 
 	addProduct() {
@@ -49,6 +53,11 @@ class Catalog extends Component<Props, State> {
 	}
 
 	render() {
+		if (this.state.loading)
+			return (
+				<LoadingComponent message="Loading products..."></LoadingComponent>
+			);
+
 		return (
 			<>
 				<ProductList products={this.state.products} />
