@@ -11,16 +11,48 @@ import {
 import { Component } from "react";
 import { Product } from "../../app/models/product";
 import { Link } from "react-router-dom";
+import agent from "../../app/api/agent";
+import { LoadingButton } from "@mui/lab";
+import { StoreContext } from "../../app/context/StoreContext";
+import { currencyFormat } from "../../app/utils/util";
 
 interface Props {
 	product: Product;
 }
 
 interface State {
-	value: string;
+	loading: boolean;
 }
 
 class ProductCard extends Component<Props, State> {
+	static contextType = StoreContext;
+	declare context: React.ContextType<typeof StoreContext>;
+
+	// setBasket: (basket: Basket) => void;
+
+	constructor(props: Props) {
+		super(props);
+		this.state = {
+			loading: false,
+		};
+
+		this.handleAddItem = this.handleAddItem.bind(this);
+	}
+
+	handleAddItem = (productId: number) => {
+		this.setState(() => ({ loading: true }));
+		agent.Basket.addItem(productId)
+			.then((basket) => {
+				console.log(basket);
+				console.log(this.context);
+				this.context?.setBasket(basket);
+			})
+			.catch((error) =>
+				console.error("Error adding item to basket:", error)
+			)
+			.finally(() => this.setState(() => ({ loading: false })));
+	};
+
 	render() {
 		return (
 			<Card>
@@ -46,15 +78,29 @@ class ProductCard extends Component<Props, State> {
 				/>
 				<CardContent>
 					<Typography gutterBottom color="secondary" variant="h5">
-						${(this.props.product.price / 100.0).toFixed(2)}
+						{currencyFormat(this.props.product.price)}
 					</Typography>
 					<Typography variant="body2" color="text.secondary">
 						{this.props.product.brand} / {this.props.product.type}
 					</Typography>
 				</CardContent>
 				<CardActions>
-					<Button size="small">Add To Cart</Button>
-					<Button component={Link} to={`/catalog/${this.props.product.id}`} size="small">View</Button>
+					<LoadingButton
+						loading={this.state.loading}
+						size="small"
+						onClick={() =>
+							this.handleAddItem(this.props.product.id)
+						}
+					>
+						Add To Cart
+					</LoadingButton>
+					<Button
+						component={Link}
+						to={`/catalog/${this.props.product.id}`}
+						size="small"
+					>
+						View
+					</Button>
 				</CardActions>
 			</Card>
 		);

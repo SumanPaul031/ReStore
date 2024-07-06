@@ -11,7 +11,8 @@ import {
 	Typography,
 } from "@mui/material";
 import React, { Component } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
+import { StoreContext } from "../context/StoreContext";
 
 const midLinks = [
 	{ title: "catalog", path: "/catalog" },
@@ -44,7 +45,23 @@ interface Props {
 interface State {}
 
 class Header extends Component<Props, State> {
+	static contextType = StoreContext;
+	declare context: React.ContextType<typeof StoreContext>;
+	itemCount: number | undefined;
+
+	constructor(props: Props) {
+		super(props);
+		this.state = {
+			loading: false,
+		};
+	}
+
 	render() {
+		this.itemCount = this.context?.basket?.items.reduce(
+			(sum, item) => sum + item.quantity,
+			0
+		);
+
 		return (
 			<AppBar position="static" sx={{ mb: 4 }}>
 				<Toolbar
@@ -83,12 +100,17 @@ class Header extends Component<Props, State> {
 
 					<Box display="flex" alignItems="center">
 						<IconButton
+							component={Link}
+							to="/basket"
 							size="large"
 							edge="start"
 							color="inherit"
 							sx={{ mr: 2 }}
 						>
-							<Badge badgeContent="5" color="secondary">
+							<Badge
+								badgeContent={this.itemCount}
+								color="secondary"
+							>
 								<ShoppingCart></ShoppingCart>
 							</Badge>
 						</IconButton>
