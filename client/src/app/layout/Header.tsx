@@ -10,9 +10,13 @@ import {
 	Toolbar,
 	Typography,
 } from "@mui/material";
-import React, { Component } from "react";
+import { Component } from "react";
 import { NavLink, Link } from "react-router-dom";
-import { StoreContext } from "../context/StoreContext";
+// import { StoreContext } from "../context/StoreContext";
+import { BasketState } from "../../features/basket/BasketSlice";
+import { connect } from "react-redux";
+import { BasketItem } from "../models/basket";
+import { RootState } from "../store/ConfigureStore";
 
 const midLinks = [
 	{ title: "catalog", path: "/catalog" },
@@ -40,27 +44,31 @@ const navStyles = {
 interface Props {
 	darkMode: boolean;
 	handleThemeChange: () => void;
+	basketState: BasketState;
 }
 
 interface State {}
 
-class Header extends Component<Props, State> {
-	static contextType = StoreContext;
-	declare context: React.ContextType<typeof StoreContext>;
+class HeaderClass extends Component<Props, State> {
+	// static contextType = StoreContext;
+	// declare context: React.ContextType<typeof StoreContext>;
 	itemCount: number | undefined;
 
 	constructor(props: Props) {
 		super(props);
-		this.state = {
-			loading: false,
-		};
+		// this.state = {
+		// 	loading: false,
+		// };
 	}
 
 	render() {
-		this.itemCount = this.context?.basket?.items.reduce(
-			(sum, item) => sum + item.quantity,
-			0
-		);
+		const { basketState } = this.props;
+		if (basketState) {
+			this.itemCount = basketState.basket?.items.reduce(
+				(sum: number, item: BasketItem) => sum + item.quantity,
+				0
+			);
+		}
 
 		return (
 			<AppBar position="static" sx={{ mb: 4 }}>
@@ -132,5 +140,11 @@ class Header extends Component<Props, State> {
 		);
 	}
 }
+
+const mapStateToProps = (state: RootState) => ({
+	basketState: state.basket,
+});
+
+const Header = connect(mapStateToProps)(HeaderClass);
 
 export default Header;

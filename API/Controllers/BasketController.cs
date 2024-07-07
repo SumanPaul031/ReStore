@@ -30,7 +30,7 @@ namespace API.Controllers
             var basket = await RetrieveBasket();
             if (basket == null) basket = CreateBasket();
             var product = await context.Products.FindAsync(productId);
-            if (product == null) NotFound();
+            if (product == null) BadRequest(new ProblemDetails { Title = "Product Not Found" });
             basket.AddItem(product, quantity);
             var result = await context.SaveChangesAsync() > 0;
             if (result) return CreatedAtRoute("GetBasket", MapBasketToDTO(basket));

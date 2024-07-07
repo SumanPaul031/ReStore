@@ -11,22 +11,35 @@ import {
 import { Component } from "react";
 import { Product } from "../../app/models/product";
 import { Link } from "react-router-dom";
-import agent from "../../app/api/agent";
+// import agent from "../../app/api/agent";
 import { LoadingButton } from "@mui/lab";
-import { StoreContext } from "../../app/context/StoreContext";
+// import { StoreContext } from "../../app/context/StoreContext";
 import { currencyFormat } from "../../app/utils/util";
+import {
+	AddBasketItemAsync,
+	BasketState,
+	removeItem,
+	setBasket,
+} from "../basket/BasketSlice";
+import { connect } from "react-redux";
+import { Basket } from "../../app/models/basket";
+import { AppDispatch, RootState } from "../../app/store/ConfigureStore";
 
 interface Props {
 	product: Product;
+	basketState: BasketState;
+	setBasket: (basket: Basket) => void;
+	removeItem: (productId: number, quantity: number) => void;
+	AddBasketItemAsync: (productId: number, quantity?: number) => void;
 }
 
 interface State {
 	loading: boolean;
 }
 
-class ProductCard extends Component<Props, State> {
-	static contextType = StoreContext;
-	declare context: React.ContextType<typeof StoreContext>;
+class ProductCardClass extends Component<Props, State> {
+	// static contextType = StoreContext;
+	// declare context: React.ContextType<typeof StoreContext>;
 
 	// setBasket: (basket: Basket) => void;
 
@@ -36,22 +49,22 @@ class ProductCard extends Component<Props, State> {
 			loading: false,
 		};
 
-		this.handleAddItem = this.handleAddItem.bind(this);
+		// this.handleAddItem = this.handleAddItem.bind(this);
 	}
 
-	handleAddItem = (productId: number) => {
-		this.setState(() => ({ loading: true }));
-		agent.Basket.addItem(productId)
-			.then((basket) => {
-				console.log(basket);
-				console.log(this.context);
-				this.context?.setBasket(basket);
-			})
-			.catch((error) =>
-				console.error("Error adding item to basket:", error)
-			)
-			.finally(() => this.setState(() => ({ loading: false })));
-	};
+	// handleAddItem = (productId: number) => {
+	// 	this.setState(() => ({ loading: true }));
+	// 	agent.Basket.addItem(productId)
+	// 		.then((basket) => {
+	// 			console.log(basket);
+	// 			// this.context?.setBasket(basket);
+	// 			this.props.setBasket(basket);
+	// 		})
+	// 		.catch((error) =>
+	// 			console.error("Error adding item to basket:", error)
+	// 		)
+	// 		.finally(() => this.setState(() => ({ loading: false })));
+	// };
 
 	render() {
 		return (
@@ -86,10 +99,15 @@ class ProductCard extends Component<Props, State> {
 				</CardContent>
 				<CardActions>
 					<LoadingButton
-						loading={this.state.loading}
+						loading={this.props.basketState?.status.includes(
+							"pendingAddItem" + this.props.product.id
+						)}
 						size="small"
+						// onClick={() =>
+						// 	this.handleAddItem(this.props.product.id)
+						// }
 						onClick={() =>
-							this.handleAddItem(this.props.product.id)
+							this.props.AddBasketItemAsync(this.props.product.id)
 						}
 					>
 						Add To Cart
@@ -107,4 +125,24 @@ class ProductCard extends Component<Props, State> {
 	}
 }
 
-export default ProductCard;
+const mapStateToProps = (state: RootState) => ({
+	basketState: state.basket,
+});
+
+// const mapDispatchToProps = () => ({
+// 	setBasket,
+// 	removeItem,
+// });
+
+const mapDispatchToProps = (dispatch: AppDispatch) => ({
+	setBasket: (basket: Basket) => dispatch(setBasket(basket)),
+	removeItem: (productId: number, quantity: number) =>
+		dispatch(removeItem({ productId, quantity })),
+	AddBasketItemAsync: (productId: number) =>
+		dispatch(AddBasketItemAsync({ productId })),
+});
+
+// export default ProductCard;
+const ProductCard = connect(mapStateToProps, mapDispatchToProps)(ProductCardClass);
+
+export default ProductCard
