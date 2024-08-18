@@ -17,6 +17,8 @@ import { BasketState } from "../../features/basket/BasketSlice";
 import { connect } from "react-redux";
 import { BasketItem } from "../models/basket";
 import { RootState } from "../store/ConfigureStore";
+import { AccountState } from "../../features/account/accountSlice";
+import SignedInMenu from "./SignedInMenu";
 
 const midLinks = [
 	{ title: "catalog", path: "/catalog" },
@@ -45,6 +47,7 @@ interface Props {
 	darkMode: boolean;
 	handleThemeChange: () => void;
 	basketState: BasketState;
+	user: AccountState;
 }
 
 interface State {}
@@ -122,18 +125,22 @@ class HeaderClass extends Component<Props, State> {
 								<ShoppingCart></ShoppingCart>
 							</Badge>
 						</IconButton>
-						<List sx={{ display: "flex" }}>
-							{rightLinks.map(({ title, path }) => (
-								<ListItem
-									component={NavLink}
-									to={path}
-									key={path}
-									sx={navStyles}
-								>
-									{title.toUpperCase()}
-								</ListItem>
-							))}
-						</List>
+						{this.props.user.user ? (
+							<SignedInMenu></SignedInMenu>
+						) : (
+							<List sx={{ display: "flex" }}>
+								{rightLinks.map(({ title, path }) => (
+									<ListItem
+										component={NavLink}
+										to={path}
+										key={path}
+										sx={navStyles}
+									>
+										{title.toUpperCase()}
+									</ListItem>
+								))}
+							</List>
+						)}
 					</Box>
 				</Toolbar>
 			</AppBar>
@@ -143,6 +150,7 @@ class HeaderClass extends Component<Props, State> {
 
 const mapStateToProps = (state: RootState) => ({
 	basketState: state.basket,
+	user: state.account,
 });
 
 const Header = connect(mapStateToProps)(HeaderClass);

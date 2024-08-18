@@ -10,7 +10,7 @@ import { decrement, increment } from "../../app/context/CounterSlice";
 
 export default function ContactPage() {
 	const dispatch = useAppDispatch();
-	const {data, title} = useAppSelector((state) => state.counterReducerSlice);
+	const { data, title } = useAppSelector((state) => state.counterSlice);
 	// const title = useAppSelector((state: CounterState) => state.title);
 	return (
 		<>

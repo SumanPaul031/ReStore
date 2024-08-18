@@ -99,9 +99,10 @@ class ProductCardClass extends Component<Props, State> {
 				</CardContent>
 				<CardActions>
 					<LoadingButton
-						loading={this.props.basketState?.status.includes(
+						loading={
+							this.props.basketState?.status ===
 							"pendingAddItem" + this.props.product.id
-						)}
+						}
 						size="small"
 						// onClick={() =>
 						// 	this.handleAddItem(this.props.product.id)
@@ -143,6 +144,9 @@ const mapDispatchToProps = (dispatch: AppDispatch) => ({
 });
 
 // export default ProductCard;
-const ProductCard = connect(mapStateToProps, mapDispatchToProps)(ProductCardClass);
+const ProductCard = connect(
+	mapStateToProps,
+	mapDispatchToProps
+)(ProductCardClass);
 
-export default ProductCard
+export default ProductCard;
